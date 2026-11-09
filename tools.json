@@ -1,0 +1,93 @@
+{
+  "schema": 1,
+  "categories": [
+    {
+      "name": "Erik Zimmerman's Tools",
+      "tools": [
+        { "name": "AmcacheParser", "url": "https://download.ericzimmermanstools.com/net/AmcacheParser.zip", "version": "1" },
+        { "name": "AppCompatCacheParser", "url": "https://download.ericzimmermanstools.com/net/AppCompatCacheParser.zip", "version": "1" },
+        { "name": "bstrings", "url": "https://download.ericzimmermanstools.com/net/bstrings.zip", "version": "1" },
+        { "name": "JumpList Explorer", "url": "https://download.ericzimmermanstools.com/net/JumpListExplorer.zip", "version": "1" },
+        { "name": "MFTECmd", "url": "https://download.ericzimmermanstools.com/MFTECmd.zip", "version": "1" },
+        { "name": "Registry Explorer", "url": "https://download.ericzimmermanstools.com/net/RegistryExplorer.zip", "version": "1" },
+        { "name": "SBECmd", "url": "https://download.ericzimmermanstools.com/SBECmd.zip", "version": "1" },
+        { "name": "SrumECmd", "url": "https://download.ericzimmermanstools.com/SrumECmd.zip", "version": "1" },
+        { "name": "Timeline Explorer", "url": "https://download.ericzimmermanstools.com/net/TimelineExplorer.zip", "version": "1" },
+        { "name": "WxTCmd", "url": "https://download.ericzimmermanstools.com/net/WxTCmd.zip", "version": "1" }
+      ]
+    },
+    {
+      "name": "Spokwn Tools",
+      "tools": [
+        { "name": "BamParser", "url": "https://github.com/spokwn/BAM-parser/releases/download/v1.2.9/BAMParser.exe" },
+        { "name": "PathsParser", "url": "https://github.com/spokwn/PathsParser/releases/download/v1.2/PathsParser.exe" },
+        { "name": "JournalTrace", "url": "https://github.com/spokwn/JournalTrace/releases/download/1.2/JournalTrace.exe" },
+        { "name": "ProcessParser", "url": "https://github.com/spokwn/process-parser/releases/download/v0.5.5/ProcessParser.exe" },
+        { "name": "PrefetchParser", "url": "https://github.com/spokwn/prefetch-parser/releases/download/v1.5.5/PrefetchParser.exe" },
+        { "name": "PcaSvc-Executed", "url": "https://github.com/spokwn/pcasvc-executed/releases/download/v0.8.7/PcaSvcExecuted.exe" },
+        { "name": "KernelLiveDump", "url": "https://github.com/spokwn/KernelLiveDumpTool/releases/download/v1.1/KernelLiveDumpTool.exe" },
+        { "name": "BamDeletedKeys", "url": "https://github.com/spokwn/BamDeletedKeys/releases/download/v1.0/BamDeletedKeys.exe" },
+        { "name": "ActivitiesCacheParser", "url": "https://github.com/spokwn/ActivitiesCache-execution/releases/download/v0.6.5/ActivitiesCacheParser.exe" }
+      ]
+    },
+    {
+      "name": "Orbdiff Tools",
+      "tools": [
+        { "name": "PrefetchView", "url": "https://github.com/Orbdiff/PrefetchView/releases/download/v1.6.8/pv++.exe" },
+        { "name": "BamReveal", "url": "https://github.com/Orbdiff/BAMReveal/releases/download/v1.3.1/BAMReveal.exe" },
+        { "name": "AmCacheParser", "url": "https://github.com/Orbdiff/AmcacheParser/releases/download/v1.0/AmcacheParser.exe" },
+        { "name": "StringsParser", "url": "https://github.com/Orbdiff/StringsParser/releases/download/v1.2.1b/stringsparser.1.2.1b.exe" }
+      ]
+    },
+    {
+      "name": "NirSoft Utilities",
+      "tools": [
+        { "name": "USBDeview", "url": "https://www.nirsoft.net/utils/usbdeview.zip", "version": "1" },
+        { "name": "WinPrefetchView", "url": "https://www.nirsoft.net/utils/winprefetchview-x64.zip", "version": "1" },
+        { "name": "TaskSchedulerView", "url": "https://www.nirsoft.net/utils/taskschedulerview-x64.zip", "version": "1" },
+        { "name": "BlueScreenView", "url": "https://www.nirsoft.net/utils/bluescreenview-x64.zip", "version": "1" },
+        { "name": "UserAssistView", "url": "https://www.nirsoft.net/utils/userassistview.zip", "version": "1" },
+        { "name": "BrowserDownloadsView", "url": "https://www.nirsoft.net/utils/browserdownloadsview-x64.zip", "version": "1" },
+        { "name": "ExecutedProgramsList", "url": "https://www.nirsoft.net/utils/executedprogramslist.zip", "version": "1" },
+        { "name": "LastActivityView", "url": "https://www.nirsoft.net/utils/lastactivityview.zip", "version": "1" },
+        { "name": "AlternateStreamView", "url": "https://www.nirsoft.net/utils/alternatestreamview-x64.zip", "version": "1" },
+        { "name": "NetworkUsageView", "url": "https://www.nirsoft.net/utils/networkusageview-x64.zip", "version": "1" },
+        { "name": "ClipboardView", "url": "https://www.nirsoft.net/utils/insideclipboard.zip", "version": "1" },
+        { "name": "RecentFilesView", "url": "https://www.nirsoft.net/utils/recentfilesview.zip", "version": "1" }
+      ]
+    },
+    {
+      "name": "Detect.ac",
+      "tools": [
+        { "name": "ToolsDownloader++", "url": "https://detect.ac/tool/ToolsDownloader++", "version": "1" }
+      ]
+    },
+    {
+      "name": "Siege",
+      "tools": [
+        { "name": "Siege", "url": "https://github.com/praiselily/Siege/releases/download/Scanner/Siege.exe", "version": "1" }
+      ]
+    },
+    {
+      "name": "2020 Tools",
+      "tools": [
+        { "name": "TasksParser", "url": "https://github.com/Inkenal/TaskParser/releases/download/main/VigilsTaskParser.exe", "version": "1" },
+        { "name": "RegistryScanner", "url": "https://github.com/Inkenal/RegistryScanner/releases/download/main/RegistryScanner.exe", "version": "1" }
+      ]
+    },
+    {
+      "name": "Other Utilities",
+      "tools": [
+        { "name": "System Informer", "url": "https://github.com/winsiderss/si-builds/releases/download/4.0.26255.346/systeminformer-build-canary-setup.exe", "installer": true },
+        { "name": "Everything", "url": "https://www.voidtools.com/Everything-1.4.1.1032.x64-Setup.exe", "installer": true },
+        { "name": "MarsPixelDumpAnalyzer", "url": "https://github.com/zedoonvm1/MarsPixelDumpAnalyzer/releases/download/Dev/MarsPixelDumpAnalyzer.exe", "version": "1" },
+        { "name": "Process Monitor (Procmon)", "url": "https://download.sysinternals.com/files/ProcessMonitor.zip", "version": "1" },
+        { "name": "Detect It Easy (DIE)", "url": "https://github.com/horsicq/DIE-engine/releases/download/4.0.0/die_win64_4.0.0.zip" },
+        { "name": "Hayabusa", "url": "https://github.com/Yamato-Security/hayabusa/releases/download/v3.10.0/hayabusa-3.10.0-win-x64.zip" },
+        { "name": "Luyten", "url": "https://github.com/deathmarine/Luyten/releases/download/v0.5.4_Rebuilt_with_Latest_depenencies/luyten-0.5.4.exe" },
+        { "name": "Autoruns", "url": "https://download.sysinternals.com/files/Autoruns.zip", "version": "1" },
+        { "name": "Process Explorer", "url": "https://download.sysinternals.com/files/ProcessExplorer.zip", "version": "1" }
+      ]
+    }
+  ]
+}

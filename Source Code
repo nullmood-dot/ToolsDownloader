@@ -1,0 +1,375 @@
+// SStools - Made By Winem - https://github.com/nullmood-dot
+#include <windows.h>
+#include <algorithm>
+using std::min; using std::max;
+#include <gdiplus.h>
+#include <winhttp.h>
+#include <shellapi.h>
+#include <string>
+#include <vector>
+#include <thread>
+#include <mutex>
+#include <atomic>
+#include <fstream>
+#include <functional>
+#include <filesystem>
+#include "miniz/miniz.h"
+using namespace Gdiplus;
+namespace fs = std::filesystem;
+using std::wstring; using std::vector;
+
+#define EZ L"https://download.ericzimmermanstools.com/"
+#define NS L"https://www.nirsoft.net/utils/"
+#define SY L"https://download.sysinternals.com/files/"
+static const wchar_t* ROOT = L"C:\\Forensic utilities and tools";
+
+struct Tool { const wchar_t* n; const wchar_t* u; bool inst; };
+struct Cat { const wchar_t* n; vector<Tool> t; };
+static vector<Cat> CATS = {
+ {L"Erik Zimmerman's Tools", {
+  {L"AmcacheParser", EZ L"net/AmcacheParser.zip", 0}, {L"AppCompatCacheParser", EZ L"net/AppCompatCacheParser.zip", 0},
+  {L"bstrings", EZ L"net/bstrings.zip", 0}, {L"JumpList Explorer", EZ L"net/JumpListExplorer.zip", 0},
+  {L"MFTECmd", EZ L"MFTECmd.zip", 0}, {L"Registry Explorer", EZ L"net/RegistryExplorer.zip", 0},
+  {L"SBECmd", EZ L"SBECmd.zip", 0}, {L"SrumECmd", EZ L"SrumECmd.zip", 0},
+  {L"Timeline Explorer", EZ L"net/TimelineExplorer.zip", 0}, {L"WxTCmd", EZ L"net/WxTCmd.zip", 0}}},
+ {L"Spokwn Tools", {
+  {L"BamParser", L"https://github.com/spokwn/BAM-parser/releases/download/v1.2.9/BAMParser.exe", 0},
+  {L"PathsParser", L"https://github.com/spokwn/PathsParser/releases/download/v1.2/PathsParser.exe", 0},
+  {L"JournalTrace", L"https://github.com/spokwn/JournalTrace/releases/download/1.2/JournalTrace.exe", 0},
+  {L"ProcessParser", L"https://github.com/spokwn/process-parser/releases/download/v0.5.5/ProcessParser.exe", 0},
+  {L"PrefetchParser", L"https://github.com/spokwn/prefetch-parser/releases/download/v1.5.5/PrefetchParser.exe", 0},
+  {L"PcaSvc-Executed", L"https://github.com/spokwn/pcasvc-executed/releases/download/v0.8.7/PcaSvcExecuted.exe", 0},
+  {L"KernelLiveDump", L"https://github.com/spokwn/KernelLiveDumpTool/releases/download/v1.1/KernelLiveDumpTool.exe", 0},
+  {L"BamDeletedKeys", L"https://github.com/spokwn/BamDeletedKeys/releases/download/v1.0/BamDeletedKeys.exe", 0},
+  {L"ActivitiesCacheParser", L"https://github.com/spokwn/ActivitiesCache-execution/releases/download/v0.6.5/ActivitiesCacheParser.exe", 0}}},
+ {L"Orbdiff Tools", {
+  {L"PrefetchView", L"https://github.com/Orbdiff/PrefetchView/releases/download/v1.6.8/pv++.exe", 0},
+  {L"BamReveal", L"https://github.com/Orbdiff/BAMReveal/releases/download/v1.3.1/BAMReveal.exe", 0},
+  {L"AmCacheParser", L"https://github.com/Orbdiff/AmcacheParser/releases/download/v1.0/AmcacheParser.exe", 0},
+  {L"StringsParser", L"https://github.com/Orbdiff/StringsParser/releases/download/v1.2.1b/stringsparser.1.2.1b.exe", 0}}},
+ {L"NirSoft Utilities", {
+  {L"USBDeview", NS L"usbdeview.zip", 0}, {L"WinPrefetchView", NS L"winprefetchview-x64.zip", 0},
+  {L"TaskSchedulerView", NS L"taskschedulerview-x64.zip", 0}, {L"BlueScreenView", NS L"bluescreenview-x64.zip", 0},
+  {L"UserAssistView", NS L"userassistview.zip", 0}, {L"BrowserDownloadsView", NS L"browserdownloadsview-x64.zip", 0},
+  {L"ExecutedProgramsList", NS L"executedprogramslist.zip", 0}, {L"LastActivityView", NS L"lastactivityview.zip", 0},
+  {L"AlternateStreamView", NS L"alternatestreamview-x64.zip", 0}, {L"NetworkUsageView", NS L"networkusageview-x64.zip", 0},
+  {L"ClipboardView", NS L"insideclipboard.zip", 0}, {L"RecentFilesView", NS L"recentfilesview.zip", 0}}},
+ {L"Detect.ac", {{L"ToolsDownloader++", L"https://detect.ac/tool/ToolsDownloader++", 0}}},
+ {L"Siege", {{L"Siege", L"https://github.com/praiselily/Siege/releases/download/Scanner/Siege.exe", 0}}},
+ {L"2020 Tools", {
+  {L"TasksParser", L"https://github.com/Inkenal/TaskParser/releases/download/main/VigilsTaskParser.exe", 0},
+  {L"RegistryScanner", L"https://github.com/Inkenal/RegistryScanner/releases/download/main/RegistryScanner.exe", 0}}},
+ {L"Other Utilities", {
+  {L"System Informer", L"https://github.com/winsiderss/si-builds/releases/download/4.0.26255.346/systeminformer-build-canary-setup.exe", 1},
+  {L"Everything", L"https://www.voidtools.com/Everything-1.4.1.1032.x64-Setup.exe", 1},
+  {L"MarsPixelDumpAnalyzer", L"https://github.com/zedoonvm1/MarsPixelDumpAnalyzer/releases/download/Dev/MarsPixelDumpAnalyzer.exe", 0},
+  {L"Process Monitor (Procmon)", SY L"ProcessMonitor.zip", 0},
+  {L"Detect It Easy (DIE)", L"https://github.com/horsicq/DIE-engine/releases/download/4.0.0/die_win64_4.0.0.zip", 0},
+  {L"Hayabusa", L"https://github.com/Yamato-Security/hayabusa/releases/download/v3.10.0/hayabusa-3.10.0-win-x64.zip", 0},
+  {L"Luyten", L"https://github.com/deathmarine/Luyten/releases/download/v0.5.4_Rebuilt_with_Latest_depenencies/luyten-0.5.4.exe", 0},
+  {L"Autoruns", SY L"Autoruns.zip", 0}, {L"Process Explorer", SY L"ProcessExplorer.zip", 0}}},
+};
+
+enum { ST_READY, ST_HAVE, ST_PEND, ST_DL, ST_EXT, ST_DONE, ST_FAIL, ST_SKIP };
+struct Item { int cat; const Tool* t; bool sel; std::atomic<int> st{0}, pct{0}; wstring err; };
+static vector<Item>* I;
+static std::mutex mu;
+static wstring cur = L"Ready", summary;
+static std::atomic<int> overall{0};
+static std::atomic<bool> busy{false};
+static float overDisp = 0, K = 1; static int view = -1, scrollY = 0, contentH = 0, hotId = -1;
+static HWND hw; static const wchar_t* BRAND_URL = L"https://github.com/nullmood-dot";
+
+// ---------- paths / helpers ----------
+static wstring San(wstring s) { for (auto& c : s) if (wcschr(L"\\/:*?\"<>|", c)) c = L'_'; return s; }
+static bool EndsI(const wstring& s, const wstring& e) { return s.size() >= e.size() && _wcsicmp(s.c_str() + s.size() - e.size(), e.c_str()) == 0; }
+struct P { wstring dir, file, target; bool zip; };
+static P PathsOf(const Item& it) {
+  P p; wstring u = it.t->u; size_t q = u.find_first_of(L"?#"); if (q != wstring::npos) u.resize(q);
+  p.file = u.substr(u.find_last_of(L'/') + 1); if (p.file.find(L'.') == wstring::npos) p.file += L".exe";
+  p.zip = EndsI(p.file, L".zip"); p.dir = wstring(ROOT) + L"\\" + San(CATS[it.cat].n);
+  p.target = p.zip ? p.dir + L"\\" + San(it.t->n) : p.dir + L"\\" + p.file; return p;
+}
+static bool Have(const Item& it) {
+  P p = PathsOf(it); std::error_code ec;
+  if (!p.zip) return fs::is_regular_file(p.target, ec);
+  return fs::is_directory(p.target, ec) && fs::directory_iterator(p.target, ec) != fs::directory_iterator();
+}
+static void Refresh() { for (auto& it : *I) { bool h = Have(it); it.st = h ? ST_HAVE : ST_READY; it.pct = h ? 100 : 0; } }
+static bool Vis(int i) { return view < 0 || (*I)[i].cat == view; }
+static int FailCount() { int n = 0; for (auto& it : *I) if (it.st == ST_FAIL) n++; return n; }
+
+// ---------- download ----------
+struct H { HINTERNET h; ~H() { if (h) WinHttpCloseHandle(h); } };
+static void Download(const wstring& url, const wstring& out, Item& it, const std::function<void(int)>& prog) {
+  wchar_t host[256], path[2048], extra[1024];
+  URL_COMPONENTSW uc{}; uc.dwStructSize = sizeof uc;
+  uc.lpszHostName = host; uc.dwHostNameLength = 256; uc.lpszUrlPath = path; uc.dwUrlPathLength = 2048; uc.lpszExtraInfo = extra; uc.dwExtraInfoLength = 1024;
+  if (!WinHttpCrackUrl(url.c_str(), 0, 0, &uc) || uc.nScheme != INTERNET_SCHEME_HTTPS) throw wstring(L"Blocked: not an HTTPS URL");
+  H s{WinHttpOpen(L"SStools/1.0", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY, 0, 0, 0)}; if (!s.h) throw wstring(L"Network init failed");
+  WinHttpSetTimeouts(s.h, 30000, 30000, 30000, 60000);
+  DWORD proto = 0x2800; WinHttpSetOption(s.h, WINHTTP_OPTION_SECURE_PROTOCOLS, &proto, sizeof proto);
+  H c{WinHttpConnect(s.h, host, uc.nPort, 0)}; if (!c.h) throw wstring(L"Connection failed");
+  wstring rp = wstring(path) + extra;
+  H r{WinHttpOpenRequest(c.h, L"GET", rp.c_str(), 0, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, WINHTTP_FLAG_SECURE)};
+  if (!r.h || !WinHttpSendRequest(r.h, 0, 0, 0, 0, 0, 0) || !WinHttpReceiveResponse(r.h, 0)) throw wstring(L"Request failed (no connection?)");
+  DWORD code = 0, sz = sizeof code;
+  WinHttpQueryHeaders(r.h, WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER, 0, &code, &sz, 0);
+  if (code != 200) throw L"HTTP " + std::to_wstring(code);
+  wchar_t fin[2048]; DWORD fl = sizeof fin;
+  if (WinHttpQueryOption(r.h, WINHTTP_OPTION_URL, fin, &fl) && _wcsnicmp(fin, L"https://", 8) != 0) throw wstring(L"Blocked: redirect to non-HTTPS");
+  DWORD64 total = 0; DWORD tl = 0; sz = sizeof tl;
+  if (WinHttpQueryHeaders(r.h, WINHTTP_QUERY_CONTENT_LENGTH | WINHTTP_QUERY_FLAG_NUMBER, 0, &tl, &sz, 0)) total = tl;
+  std::ofstream f(fs::path(out), std::ios::binary); if (!f) throw wstring(L"Cannot write file (permissions?)");
+  vector<char> buf(65536); DWORD n; DWORD64 got = 0;
+  while (WinHttpReadData(r.h, buf.data(), (DWORD)buf.size(), &n) && n) {
+    f.write(buf.data(), n); got += n;
+    int p = total ? (int)(got * 100 / total) : 50; it.pct = p; prog(p);
+  }
+  f.close(); if (total && got != total) throw wstring(L"Incomplete download");
+}
+
+static wstring Wide(const char* s) { int n = MultiByteToWideChar(CP_UTF8, 0, s, -1, 0, 0); wstring w(n, 0); MultiByteToWideChar(CP_UTF8, 0, s, -1, &w[0], n); w.resize(n - 1); return w; }
+
+static void Unzip(const wstring& zp, const wstring& work) {
+  std::ifstream in(fs::path(zp), std::ios::binary); vector<char> d((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+  mz_zip_archive z{}; if (!mz_zip_reader_init_mem(&z, d.data(), d.size(), 0)) throw wstring(L"Extraction failed (archive kept)");
+  for (mz_uint i = 0; i < mz_zip_reader_get_num_files(&z); i++) {
+    mz_zip_archive_file_stat st; mz_zip_reader_file_stat(&z, i, &st);
+    std::string nm = st.m_filename; for (auto& ch : nm) if (ch == '\\') ch = '/';
+    bool bad = nm.empty() || nm[0] == '/' || nm.find(':') != std::string::npos || nm == ".." || nm.rfind("../", 0) == 0 || nm.find("/../") != std::string::npos || (nm.size() > 3 && nm.compare(nm.size() - 3, 3, "/..") == 0);
+    if (bad) { mz_zip_reader_end(&z); throw wstring(L"Unsafe path in archive (kept)"); }
+    fs::path p = fs::path(work) / fs::path(Wide(nm.c_str()));
+    if (mz_zip_reader_is_file_a_directory(&z, i)) { fs::create_directories(p); continue; }
+    fs::create_directories(p.parent_path());
+    size_t n = 0; void* b = mz_zip_reader_extract_to_heap(&z, i, &n, 0);
+    if (!b && st.m_uncomp_size) { mz_zip_reader_end(&z); throw wstring(L"Extraction failed (archive kept)"); }
+    std::ofstream o(p, std::ios::binary); if (b) o.write((char*)b, n); mz_free(b);
+  }
+  mz_zip_reader_end(&z);
+}
+
+static bool Fetch(Item& it, const std::function<void(int)>& prog) {
+  P p = PathsOf(it); fs::create_directories(p.dir);
+  if (Have(it)) { it.st = ST_SKIP; it.pct = 100; prog(100); return true; }
+  wstring part = p.dir + L"\\" + p.file + L".part"; std::error_code ec;
+  it.pct = 0; it.st = ST_DL;
+  try {
+    Download(it.t->u, part, it, prog);
+    char m[2] = {0, 0}; { std::ifstream f(fs::path(part), std::ios::binary); f.read(m, 2); }
+    if (p.zip ? !(m[0] == 'P' && m[1] == 'K') : !(m[0] == 'M' && m[1] == 'Z'))
+      throw wstring(p.zip ? L"Not a valid ZIP file" : L"Not a Windows executable (got a web page?)");
+  } catch (...) { fs::remove(part, ec); throw; }
+  if (p.zip) {
+    it.st = ST_EXT; it.pct = 100; wstring zp = p.dir + L"\\" + p.file, work = p.target + L".extracting";
+    fs::rename(part, zp, ec); if (ec) { fs::remove(zp, ec); fs::rename(part, zp); }
+    try {
+      fs::remove_all(work, ec); Unzip(zp, work); fs::remove_all(p.target, ec); fs::rename(work, p.target);
+      fs::remove(zp, ec);  // only reached when extraction succeeded
+    } catch (...) { fs::remove_all(work, ec); throw wstring(L"Extraction failed (archive kept)"); }
+  } else { fs::remove(p.target, ec); fs::rename(part, p.target); }
+  it.st = ST_DONE; it.pct = 100; return false;
+}
+
+static void Work(vector<int> sel) {
+  int done = 0, ok = 0, skip = 0, fail = 0; wstring fails; int N = (int)sel.size();
+  for (int i : sel) {
+    Item& it = (*I)[i];
+    { std::lock_guard<std::mutex> l(mu); cur = wstring(CATS[it.cat].n) + L"  >  " + it.t->n + L"   (" + std::to_wstring(done + 1) + L"/" + std::to_wstring(N) + L")"; }
+    wstring e;
+    try { (Fetch(it, [&](int p) { overall = (int)((done + p / 100.0) / N * 100); }) ? skip : ok)++; }
+    catch (const wstring& w) { e = w; } catch (const std::exception& x) { e = Wide(x.what()); } catch (...) { e = L"Unexpected error"; }
+    if (!e.empty()) { std::lock_guard<std::mutex> l(mu); it.err = e; it.st = ST_FAIL; fail++; fails += wstring(it.t->n) + L": " + e + L"\n"; }
+    done++; overall = done * 100 / N;
+  }
+  { std::lock_guard<std::mutex> l(mu);
+    cur = fail ? L"Finished with errors." : L"All selected utilities finished.";
+    summary = L"Completed: " + std::to_wstring(ok) + L"    Already present: " + std::to_wstring(skip) + L"    Failed: " + std::to_wstring(fail) + L"\n\nLocation: " + ROOT;
+    if (fail) summary += L"\n\nFailed:\n" + fails + L"\nUse \"Retry Failed\" to try again."; }
+  PostMessageW(hw, WM_APP + 1, fail, 0);
+}
+
+static void StartRun(vector<int> sel) {
+  if (sel.empty()) { MessageBoxW(hw, L"Select at least one utility first.", L"SStools", MB_OK); return; }
+  std::error_code ec; fs::create_directories(ROOT, ec);
+  if (ec) { MessageBoxW(hw, L"Cannot create C:\\Forensic utilities and tools\n(try running as administrator).", L"SStools", MB_ICONERROR); return; }
+  for (int i : sel) { (*I)[i].st = ST_PEND; (*I)[i].pct = 0; }
+  overall = 0; overDisp = 0; busy = true; std::thread(Work, sel).detach();
+}
+
+// ---------- drawing ----------
+static Color C(int r, int g, int b, int a = 255) { return Color(a, r, g, b); }
+static Color BG = C(17, 15, 24), PANEL = C(22, 20, 31), ROWC = C(27, 24, 39), LINE = C(46, 42, 66), HOVER = C(37, 33, 54),
+  PUR = C(124, 92, 230), AQ = C(34, 211, 238), TXT = C(228, 226, 238), DIM = C(138, 134, 158), GOOD = C(94, 200, 130),
+  BAD = C(235, 110, 110), WARN = C(230, 180, 70), TRK = C(40, 36, 58);
+static Font *fT, *fH, *fN, *fL;
+static Bitmap* logo;
+struct Hit { RectF r; int type, id; };
+static vector<Hit> hits;
+static int hotT = -1, hotI = -1;
+enum { H_NAV, H_CHK, H_SEL, H_DES, H_DL, H_DEL, H_RETRY, H_BRAND };
+
+static float s(float v) { return v * K; }
+static bool Hot(int t, int i) { return hotT == t && hotI == i; }
+static void RRp(GraphicsPath& p, RectF r, float d) {
+  d = min(d, min(r.Width, r.Height)); p.AddArc(r.X, r.Y, d, d, 180, 90); p.AddArc(r.GetRight() - d, r.Y, d, d, 270, 90);
+  p.AddArc(r.GetRight() - d, r.GetBottom() - d, d, d, 0, 90); p.AddArc(r.X, r.GetBottom() - d, d, d, 90, 90); p.CloseFigure();
+}
+static void FillRR(Graphics& g, RectF r, float rad, Color c) { GraphicsPath p; RRp(p, r, rad * 2); SolidBrush b(c); g.FillPath(&b, &p); }
+static void LineRR(Graphics& g, RectF r, float rad, Color c) { GraphicsPath p; RRp(p, r, rad * 2); Pen pn(c, 1.f); g.DrawPath(&pn, &p); }
+static void Txt(Graphics& g, const wstring& t, Font* f, RectF r, Color c, int al = 0) {
+  StringFormat sf; sf.SetAlignment(al == 0 ? StringAlignmentNear : al == 1 ? StringAlignmentCenter : StringAlignmentFar);
+  sf.SetLineAlignment(StringAlignmentCenter); sf.SetTrimming(StringTrimmingEllipsisCharacter); sf.SetFormatFlags(StringFormatFlagsNoWrap);
+  SolidBrush b(c); g.DrawString(t.c_str(), -1, f, r, &sf, &b);
+}
+static void Bar(Graphics& g, RectF r, float pct, bool grad) {
+  FillRR(g, r, r.Height / 2, TRK); float w = r.Width * min(100.f, max(0.f, pct)) / 100; if (w < r.Height) return;
+  RectF f(r.X, r.Y, w, r.Height); GraphicsPath p; RRp(p, f, r.Height);
+  if (grad) { LinearGradientBrush b(f, PUR, AQ, LinearGradientModeHorizontal); g.FillPath(&b, &p); } else { SolidBrush b(PUR); g.FillPath(&b, &p); }
+}
+static void Btn(Graphics& g, float x, float y, float w, const wchar_t* t, int type, bool primary) {
+  RectF r(x, y, w, s(32)); bool h = Hot(type, 0);
+  if (primary) FillRR(g, r, s(5), h ? C(146, 118, 245) : PUR); else { FillRR(g, r, s(5), h ? HOVER : ROWC); LineRR(g, r, s(5), LINE); }
+  Txt(g, t, fN, r, primary ? Color(255, 255, 255) : TXT, 1); hits.push_back({r, type, 0});
+}
+
+static void Paint(HDC dc, int W, int Hh) {
+  HDC m = CreateCompatibleDC(dc); HBITMAP bm = CreateCompatibleBitmap(dc, W, Hh); SelectObject(m, bm);
+  { Graphics g(m); g.SetSmoothingMode(SmoothingModeAntiAlias); g.SetInterpolationMode(InterpolationModeHighQualityBicubic);
+    g.SetTextRenderingHint(TextRenderingHintClearTypeGridFit); g.Clear(BG); hits.clear();
+    float SW = s(240); bool b = busy;
+    { SolidBrush pb(PANEL); g.FillRectangle(&pb, 0.f, 0.f, SW, (float)Hh); Pen lp(LINE); g.DrawLine(&lp, SW, 0.f, SW, (float)Hh); }
+    if (logo) g.DrawImage(logo, RectF(s(18), s(16), s(30), s(30)));
+    Txt(g, L"SStools", fT, RectF(s(56), s(16), s(170), s(30)), TXT);
+    float y = s(66);
+    for (int v = -1; v < (int)CATS.size(); v++) {
+      RectF r(s(8), y, SW - s(16), s(34)); bool sel = v == view;
+      if (sel) FillRR(g, r, s(5), HOVER); else if (Hot(H_NAV, v)) FillRR(g, r, s(5), C(30, 27, 43));
+      if (sel) FillRR(g, RectF(r.X + s(2), r.Y + s(8), s(3), s(18)), s(1.5f), PUR);
+      Txt(g, v < 0 ? L"All tools" : CATS[v].n, fN, RectF(r.X + s(16), r.Y, r.Width - s(20), r.Height), sel ? Color(255, 255, 255) : C(190, 186, 208));
+      hits.push_back({r, H_NAV, v}); y += s(36);
+      if (v < 0) { Pen lp(LINE); g.DrawLine(&lp, s(16), y + s(5), SW - s(16), y + s(5)); y += s(12); }
+    }
+    { RectF r(s(16), Hh - s(92), SW - s(32), s(32)); bool h = Hot(H_DEL, 0); if (h) FillRR(g, r, s(5), C(44, 24, 32)); LineRR(g, r, s(5), C(110, 56, 68));
+      Txt(g, L"Delete all tools", fN, r, BAD, 1); hits.push_back({r, H_DEL, 0}); }
+    { float bx = s(20), by = Hh - s(44); const StringFormat* tf = StringFormat::GenericTypographic(); RectF a, w2;
+      g.MeasureString(L"Made By", -1, fL, PointF(0, 0), tf, &a); g.MeasureString(L"Winem", -1, fN, PointF(0, 0), tf, &w2);
+      SolidBrush db(DIM); g.DrawString(L"Made By", -1, fL, PointF(bx, by + s(2)), tf, &db);
+      float wx = bx + a.Width + s(5); RectF wr(wx, by, w2.Width, w2.Height);
+      LinearGradientBrush lb(wr, AQ, PUR, LinearGradientModeHorizontal);
+      Color cs[3] = {AQ, C(190, 150, 255), PUR}; REAL ps[3] = {0, .5f, 1}; lb.SetInterpolationColors(cs, ps, 3);
+      g.DrawString(L"Winem", -1, fN, PointF(wx, by), tf, &lb); g.FillRectangle(&lb, wx, by + w2.Height + s(1), w2.Width, s(1.5f));
+      hits.push_back({RectF(bx, by, wx - bx + w2.Width, w2.Height + s(4)), H_BRAND, 0}); }
+
+    float x0 = SW + s(28), w = W - SW - s(56); int nsel = 0, ntot = 0;
+    for (int i = 0; i < (int)I->size(); i++) if (Vis(i)) { ntot++; if ((*I)[i].sel) nsel++; }
+    Txt(g, view < 0 ? L"All tools" : CATS[view].n, fH, RectF(x0, s(18), w - s(150), s(34)), TXT);
+    Txt(g, std::to_wstring(nsel) + L" of " + std::to_wstring(ntot) + L" selected", fL, RectF(x0 + w - s(150), s(18), s(150), s(34)), DIM, 2);
+    float bx = x0; Btn(g, bx, s(62), s(100), L"Select all", H_SEL, false); bx += s(108);
+    Btn(g, bx, s(62), s(110), L"Deselect all", H_DES, false); bx += s(118);
+    Btn(g, bx, s(62), s(150), L"Download selected", H_DL, true); bx += s(158);
+    if (!b && FailCount()) Btn(g, bx, s(62), s(110), L"Retry failed", H_RETRY, false);
+
+    float top = s(108), bot = Hh - s(96); float yy = top - scrollY;
+    g.SetClip(RectF(0, top, (float)W, bot - top));
+    for (int c = 0; c < (int)CATS.size(); c++) {
+      if (view >= 0 && c != view) continue;
+      if (view < 0) { yy += s(6); Txt(g, wstring(CATS[c].n), fN, RectF(x0 + s(2), yy, w, s(24)), DIM); yy += s(28); }
+      for (int i = 0; i < (int)I->size(); i++) {
+        Item& it = (*I)[i]; if (it.cat != c) continue; RectF r(x0, yy, w, s(34));
+        if (r.GetBottom() > top && r.Y < bot) {
+          FillRR(g, r, s(5), Hot(H_CHK, i) ? HOVER : ROWC);
+          RectF cb(x0 + s(12), yy + s(9), s(16), s(16));
+          if (it.sel) { FillRR(g, cb, s(3), PUR); Pen pw(Color(255, 255, 255), s(1.8f)); PointF pt[3] = {{cb.X + s(3.5f), cb.Y + s(8)}, {cb.X + s(6.5f), cb.Y + s(11)}, {cb.X + s(12.5f), cb.Y + s(4.5f)}}; g.DrawLines(&pw, pt, 3); }
+          else LineRR(g, cb, s(3), C(96, 92, 120));
+          Txt(g, it.t->n, fN, RectF(x0 + s(40), yy, s(250), s(34)), TXT);
+          Txt(g, it.t->inst ? L"Installer" : L"Portable", fL, RectF(x0 + s(290), yy, s(90), s(34)), it.t->inst ? WARN : DIM);
+          wstring t; Color col = DIM; int st = it.st, pc = it.pct;
+          switch (st) {
+            case ST_HAVE: t = L"Downloaded"; col = GOOD; break; case ST_PEND: t = L"Pending"; break;
+            case ST_DL: t = L"Downloading " + std::to_wstring(pc) + L"%"; col = AQ; break; case ST_EXT: t = L"Extracting"; col = C(170, 140, 255); break;
+            case ST_DONE: t = it.t->inst ? L"Done - run installer" : L"Done"; col = GOOD; break;
+            case ST_SKIP: t = L"Already downloaded"; col = GOOD; break;
+            case ST_FAIL: { std::lock_guard<std::mutex> l(mu); t = L"Failed: " + it.err; col = BAD; break; }
+            default: t = L""; }
+          Txt(g, t, fL, RectF(x0 + w - s(340), yy, s(230), s(34)), col, 2);
+          if (st == ST_DL || st == ST_EXT || st == ST_DONE || st == ST_SKIP || st == ST_HAVE) Bar(g, RectF(x0 + w - s(96), yy + s(15), s(80), s(4)), (float)pc, false);
+          hits.push_back({r, H_CHK, i});
+        }
+        yy += s(38);
+      }
+    }
+    contentH = (int)(yy + scrollY - top); g.ResetClip();
+    { std::lock_guard<std::mutex> l(mu); Txt(g, cur, fL, RectF(x0, Hh - s(84), w, s(22)), DIM); }
+    Bar(g, RectF(x0, Hh - s(54), w - s(52), s(6)), overDisp, true);
+    Txt(g, std::to_wstring((int)overDisp) + L"%", fL, RectF(x0 + w - s(44), Hh - s(62), s(44), s(22)), TXT, 2);
+  }
+  BitBlt(dc, 0, 0, W, Hh, m, 0, 0, SRCCOPY); DeleteObject(bm); DeleteDC(m);
+}
+
+static int HitAt(int x, int y) { for (int i = (int)hits.size() - 1; i >= 0; i--) if (hits[i].r.Contains((REAL)x, (REAL)y)) return i; return -1; }
+
+static void DeleteAll() {
+  if (MessageBoxW(hw, (wstring(L"This will PERMANENTLY delete the entire folder:\n\n") + ROOT +
+      L"\n\nand everything inside it (all categories, extracted folders and files).\nNothing outside this folder will be touched.\n\nContinue?").c_str(),
+      L"Delete All Tools", MB_YESNO | MB_ICONWARNING | MB_DEFBUTTON2) != IDYES) return;
+  try {
+    std::error_code ec; fs::path p = fs::weakly_canonical(ROOT, ec);
+    if (_wcsicmp(p.c_str(), ROOT) != 0) throw std::runtime_error("Unexpected path, aborting.");
+    if (fs::exists(p, ec)) {
+      if (GetFileAttributesW(p.c_str()) & FILE_ATTRIBUTE_REPARSE_POINT) throw std::runtime_error("Folder is a link, refusing to delete.");
+      fs::remove_all(p);
+    }
+    Refresh(); { std::lock_guard<std::mutex> l(mu); cur = L"Ready"; } overall = 0; overDisp = 0; scrollY = 0;
+    MessageBoxW(hw, L"All tools were deleted.", L"Delete All Tools", MB_OK | MB_ICONINFORMATION);
+  } catch (const std::exception& e) { MessageBoxW(hw, (L"Deletion failed:\n" + Wide(e.what())).c_str(), L"SStools", MB_OK | MB_ICONERROR); }
+}
+
+static LRESULT CALLBACK Proc(HWND h, UINT m, WPARAM w, LPARAM l) {
+  switch (m) {
+    case WM_PAINT: { PAINTSTRUCT ps; HDC dc = BeginPaint(h, &ps); RECT rc; GetClientRect(h, &rc); Paint(dc, rc.right, rc.bottom); EndPaint(h, &ps); return 0; }
+    case WM_ERASEBKGND: return 1;
+    case WM_GETMINMAXINFO: ((MINMAXINFO*)l)->ptMinTrackSize = {(LONG)s(980), (LONG)s(680)}; return 0;
+    case WM_TIMER: { float t = (float)overall; if (fabsf(t - overDisp) > 0.1f) overDisp += (t - overDisp) * 0.2f; else overDisp = t; InvalidateRect(h, 0, FALSE); return 0; }
+    case WM_APP + 1: { busy = false; std::wstring sm; { std::lock_guard<std::mutex> lk(mu); sm = summary; }
+      MessageBoxW(h, sm.c_str(), w ? L"Finished with errors" : L"Download complete", MB_OK | (w ? MB_ICONWARNING : MB_ICONINFORMATION)); return 0; }
+    case WM_MOUSEWHEEL: { RECT rc; GetClientRect(h, &rc); int vis = (int)(rc.bottom - s(204));
+      scrollY = max(0, min(max(0, contentH - vis), scrollY - (GET_WHEEL_DELTA_WPARAM(w) > 0 ? 1 : -1) * (int)s(60))); return 0; }
+    case WM_SETCURSOR: { POINT p; GetCursorPos(&p); ScreenToClient(h, &p); SetCursor(LoadCursor(0, HitAt(p.x, p.y) >= 0 ? IDC_HAND : IDC_ARROW)); return TRUE; }
+    case WM_MOUSEMOVE: { int i = HitAt(LOWORD(l), HIWORD(l)); int t = i < 0 ? -1 : hits[i].type, d = i < 0 ? -1 : hits[i].id;
+      if (t != hotT || d != hotI) { hotT = t; hotI = d; InvalidateRect(h, 0, FALSE); }
+      TRACKMOUSEEVENT te{sizeof te, TME_LEAVE, h, 0}; TrackMouseEvent(&te); return 0; }
+    case WM_MOUSELEAVE: hotT = hotI = -1; InvalidateRect(h, 0, FALSE); return 0;
+    case WM_LBUTTONDOWN: {
+      int i = HitAt(LOWORD(l), HIWORD(l)); if (i < 0) return 0; Hit ht = hits[i];
+      if (ht.type == H_BRAND) { ShellExecuteW(h, L"open", BRAND_URL, 0, 0, SW_SHOWNORMAL); return 0; }
+      if (busy) return 0;
+      vector<int> sel;
+      switch (ht.type) {
+        case H_NAV: view = ht.id; scrollY = 0; break;
+        case H_CHK: (*I)[ht.id].sel = !(*I)[ht.id].sel; break;
+        case H_SEL: case H_DES: for (int k = 0; k < (int)I->size(); k++) if (Vis(k)) (*I)[k].sel = ht.type == H_SEL; break;
+        case H_DL: for (int k = 0; k < (int)I->size(); k++) if (Vis(k) && (*I)[k].sel) sel.push_back(k); StartRun(sel); break;
+        case H_RETRY: for (int k = 0; k < (int)I->size(); k++) if ((*I)[k].st == ST_FAIL) sel.push_back(k); StartRun(sel); break;
+        case H_DEL: DeleteAll(); break;
+      }
+      InvalidateRect(h, 0, FALSE); return 0; }
+    case WM_DESTROY: PostQuitMessage(0); return 0;
+  }
+  return DefWindowProcW(h, m, w, l);
+}
+
+int WINAPI WinMain(HINSTANCE hi, HINSTANCE, LPSTR, int) {
+  SetProcessDPIAware(); HDC sd = GetDC(0); K = GetDeviceCaps(sd, LOGPIXELSX) / 96.f; ReleaseDC(0, sd);
+  GdiplusStartupInput gi; ULONG_PTR tok; GdiplusStartup(&tok, &gi, 0);
+  FontFamily ff(L"Segoe UI"); FontFamily fs2(L"Segoe UI Semibold"); fT = new Font(&fs2, s(19), FontStyleRegular, UnitPixel); fH = new Font(&fs2, s(21), FontStyleRegular, UnitPixel);
+  fN = new Font(&ff, s(13.5f), FontStyleRegular, UnitPixel); fL = new Font(&ff, s(12), FontStyleRegular, UnitPixel);
+  HICON big = (HICON)LoadImageW(hi, MAKEINTRESOURCEW(1), IMAGE_ICON, 64, 64, 0); if (big) logo = Bitmap::FromHICON(big);
+  int n = 0; for (auto& c : CATS) n += (int)c.t.size(); I = new vector<Item>(n);
+  int k = 0; for (int c = 0; c < (int)CATS.size(); c++) for (auto& t : CATS[c].t) { Item& it = (*I)[k++]; it.cat = c; it.t = &t; it.sel = false; }
+  Refresh();
+  WNDCLASSW wc{}; wc.lpfnWndProc = Proc; wc.hInstance = hi; wc.lpszClassName = L"SStoolsWnd"; wc.hCursor = LoadCursor(0, IDC_ARROW); wc.hIcon = LoadIconW(hi, MAKEINTRESOURCEW(1)); wc.hbrBackground = 0; RegisterClassW(&wc);
+  hw = CreateWindowW(L"SStoolsWnd", L"SStools", WS_OVERLAPPEDWINDOW | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, (int)s(1120), (int)s(800), 0, 0, hi, 0);
+  SetTimer(hw, 1, 16, 0); MSG msg; while (GetMessageW(&msg, 0, 0, 0)) { TranslateMessage(&msg); DispatchMessageW(&msg); }
+  GdiplusShutdown(tok); return 0;
+}

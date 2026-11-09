@@ -71,7 +71,7 @@
     {
       "name": "2020 Tools",
       "tools": [
-        { "name": "TasksParser", "url": "https://github.com/Inkenal/TaskParser/releases/download/main/VigilsTaskParser.exe", "version": "1" },
+        { "name": "TasksParser", "url": "https://github.com/Inkenal/RegistryScanner/releases/download/main/RegistryScanner.exe", "version": "1" },
         { "name": "RegistryScanner", "url": "https://github.com/Inkenal/RegistryScanner/releases/download/main/RegistryScanner.exe", "version": "1" }
       ]
     },

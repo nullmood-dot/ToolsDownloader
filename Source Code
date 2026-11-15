@@ -5,6 +5,7 @@ using std::min; using std::max;
 #include <gdiplus.h>
 #include <winhttp.h>
 #include <shellapi.h>
+#include <cmath>
 #include <string>
 #include <vector>
 #include <thread>
@@ -53,12 +54,17 @@ static vector<Cat> CATS = {
   {L"UserAssistView", NS L"userassistview.zip", 0}, {L"BrowserDownloadsView", NS L"browserdownloadsview-x64.zip", 0},
   {L"ExecutedProgramsList", NS L"executedprogramslist.zip", 0}, {L"LastActivityView", NS L"lastactivityview.zip", 0},
   {L"AlternateStreamView", NS L"alternatestreamview-x64.zip", 0}, {L"NetworkUsageView", NS L"networkusageview-x64.zip", 0},
-  {L"ClipboardView", NS L"insideclipboard.zip", 0}, {L"RecentFilesView", NS L"recentfilesview.zip", 0}}},
+  {L"ClipboardView", NS L"insideclipboard.zip", 0}, {L"RecentFilesView", NS L"recentfilesview.zip", 0},
+  {L"ShellBagsView", NS L"shellbagsview.zip", 0}}},
  {L"Detect.ac", {{L"ToolsDownloader++", L"https://detect.ac/tool/ToolsDownloader++", 0}}},
  {L"Siege", {{L"Siege", L"https://github.com/praiselily/Siege/releases/download/Scanner/Siege.exe", 0}}},
  {L"2020 Tools", {
   {L"TasksParser", L"https://github.com/Inkenal/TaskParser/releases/download/main/VigilsTaskParser.exe", 0},
-  {L"RegistryScanner", L"https://github.com/Inkenal/RegistryScanner/releases/download/main/RegistryScanner.exe", 0}}},
+  {L"RegistryScanner", L"https://github.com/Inkenal/RegistryScanner/releases/download/main/VigilsRegistryScanner.exe", 0},
+  {L"StegDetect", L"https://github.com/Inkenal/StegDetect/releases/download/main/VigilsStegDetect.exe", 0}}},
+ {L"Deplify's Tools", {
+  {L"Hong Kong Task Parser", L"https://github.com/deplifyxy/Hong-Kong-Task-Parser/releases/download/Forensics/HongKong.exe", 0},
+  {L"Japan RAM Analyzer", L"https://github.com/deplifyxy/Japan-RAM-Analyzer/releases/download/RAM/Japan.RAM.Analyzer.exe", 0}}},
  {L"Other Utilities", {
   {L"System Informer", L"https://github.com/winsiderss/si-builds/releases/download/4.0.26255.346/systeminformer-build-canary-setup.exe", 1},
   {L"Everything", L"https://www.voidtools.com/Everything-1.4.1.1032.x64-Setup.exe", 1},
@@ -67,7 +73,11 @@ static vector<Cat> CATS = {
   {L"Detect It Easy (DIE)", L"https://github.com/horsicq/DIE-engine/releases/download/4.0.0/die_win64_4.0.0.zip", 0},
   {L"Hayabusa", L"https://github.com/Yamato-Security/hayabusa/releases/download/v3.10.0/hayabusa-3.10.0-win-x64.zip", 0},
   {L"Luyten", L"https://github.com/deathmarine/Luyten/releases/download/v0.5.4_Rebuilt_with_Latest_depenencies/luyten-0.5.4.exe", 0},
-  {L"Autoruns", SY L"Autoruns.zip", 0}, {L"Process Explorer", SY L"ProcessExplorer.zip", 0}}},
+  {L"Autoruns", SY L"Autoruns.zip", 0}, {L"Process Explorer", SY L"ProcessExplorer.zip", 0},
+  {L"ApcDfir", L"https://github.com/nullmood-dot/Forensics/raw/refs/heads/main/apc-DFIR%20(1).exe", 0},
+  {L"DFIRThread", L"https://github.com/coldless0x/Thread-DFIR/releases/download/v1.0/DFIRThread.exe", 0},
+  {L"StormFuserFinder", L"https://github.com/Sorted1/StormSS-Fuser-Finder/releases/download/Main/Storm.Fuser.Finder.zip", 0},
+  {L"CFF Explorer", L"https://github.com/nullmood-dot/Forensics/raw/refs/heads/main/2383-4-10431156-7-installer.exe", 0}}},
 };
 
 enum { ST_READY, ST_HAVE, ST_PEND, ST_DL, ST_EXT, ST_DONE, ST_FAIL, ST_SKIP };
